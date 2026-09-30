@@ -1,24 +1,18 @@
 package exploracion.exploradores
 
-open class Explorador(
+abstract class Explorador(
     val nombre: String,
     energiaInicial: Int = 100,
     distanciaInicial: Double = 0.0
 ) {
-    // Encapsulación con Setter personalizado para restringir el rango [0, 100]
     var energia: Int = energiaInicial
         set(valor) {
-            field = when {
-                valor > 100 -> 100
-                valor < 0 -> 0
-                else -> valor
-            }
+            field = valor.coerceIn(0, 100)
         }
 
     var distanciaRecorrida: Double = distanciaInicial
-        protected set // Solo las subclases o la misma clase pueden modificar la distancia directamente
+        protected set
 
-    // Propiedad calculada con getter personalizado
     val estadoEnergia: String
         get() = when {
             energia > 70 -> "ÓPTIMO"
@@ -28,29 +22,19 @@ open class Explorador(
         }
 
     init {
-        // Asignación directa que pasa por el setter personalizado
         this.energia = energiaInicial
     }
 
     open fun desplazarse(distancia: Double) {
         if (energia <= 0) {
-            println("[$nombre] No se puede desplazar: Energía agotada.")
+            println("[$nombre] Sin energía para desplazarse.")
             return
         }
-        val consumo = calcularConsumo(distancia)
+        val consumo = (distancia * 2).toInt()
         energia -= consumo
         distanciaRecorrida += distancia
-        println("[$nombre] Se desplazó $distancia km. Energía restante: $energia% ($estadoEnergia).")
+        println("[$nombre] Avanzó $distancia km. Energía: $energia%.")
     }
 
-    // Método privado encapsulado
-    private fun calcularConsumo(distancia: Double): Int {
-        return (distancia * 2).toInt() // Regla base: 2% de energía por km
-    }
-
-    fun mostrarInformacion() {
-        println("--- Explorador: $nombre ---")
-        println("Energía: $energia% ($estadoEnergia)")
-        println("Distancia Recorrida: $distanciaRecorrida km")
-    }
+    abstract fun ejecutarMisionEspecial()
 }
