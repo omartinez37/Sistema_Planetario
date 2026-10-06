@@ -5,14 +5,16 @@ abstract class Explorador(
     energiaInicial: Int = 100,
     distanciaInicial: Double = 0.0
 ) {
+    // Setter personalizado para restringir el rango [0, 100]
     var energia: Int = energiaInicial
         set(valor) {
             field = valor.coerceIn(0, 100)
         }
 
     var distanciaRecorrida: Double = distanciaInicial
-        protected set
+        protected set // Solo las subclases pueden modificar la distancia directamente
 
+    // Propiedad calculada con getter personalizado
     val estadoEnergia: String
         get() = when {
             energia > 70 -> "ÓPTIMO"
@@ -23,18 +25,31 @@ abstract class Explorador(
 
     init {
         this.energia = energiaInicial
+        println("Inicializando explorador: $nombre con $energia% de energía.")
     }
 
     open fun desplazarse(distancia: Double) {
         if (energia <= 0) {
-            println("[$nombre] Sin energía para desplazarse.")
+            println("[$nombre] No se puede desplazar: Energía agotada.")
             return
         }
-        val consumo = (distancia * 2).toInt()
+        val consumo = calcularConsumo(distancia)
         energia -= consumo
         distanciaRecorrida += distancia
-        println("[$nombre] Avanzó $distancia km. Energía: $energia%.")
+        println("[$nombre] Se desplazó $distancia km. Energía restante: $energia% ($estadoEnergia).")
     }
 
+    // Método privado encapsulado
+    private fun calcularConsumo(distancia: Double): Int {
+        return (distancia * 2).toInt() // Regla base: 2% de energía por km
+    }
+
+    fun mostrarInformacion() {
+        println("--- Explorador: $nombre ---")
+        println("Energía: $energia% ($estadoEnergia)")
+        println("Distancia Recorrida: $distanciaRecorrida km")
+    }
+
+    // Método abstracto que deberán implementar las subclases
     abstract fun ejecutarMisionEspecial()
 }
